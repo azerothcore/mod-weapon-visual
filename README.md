@@ -28,4 +28,4 @@
 * [Micrah/Milestorme](https://github.com/milestorme): (Thanks for the help with the Module creation & General support): 
 
 AzerothCore: [repository](https://github.com/azerothcore) - [website](http://azerothcore.org/) - [discord chat community](https://discord.gg/PaqQRkd)
-- Latest build status with azerothcore: [![Build Status](https://travis-ci.org/azerothcore/mod-weapon-visual.svg?branch=master)](https://travis-ci.org/azerothcore/mod-npc-services)
+- Latest build status with azerothcore: [![Build Status](https://travis-ci.org/azerothcore/mod-weapon-visual.svg?branch=master)](https://travis-ci.org/azerothcore/mod-weapon-visual)
