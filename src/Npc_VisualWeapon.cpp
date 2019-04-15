@@ -17,10 +17,25 @@
         COLLATE = 'latin1_swedish_ci'
         ENGINE = InnoDB;
 */
-#include "Chat.h"
-#include "ScriptedGossip.h"
 #include "ScriptMgr.h"
-#include "Player.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GameEventMgr.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "Unit.h"
+#include "GameObject.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "InstanceScript.h"
+#include "CombatAI.h"
+#include "PassiveAI.h"
+#include "Chat.h"
+#include "DBCStructure.h"
+#include "DBCStores.h"
+#include "ObjectMgr.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 
 using namespace std;
 
@@ -194,7 +209,7 @@ public:
         Item* pItem;
 
         // We need to query the DB to get item
-        QueryResult result = CharacterDatabase.PQuery("SELECT `iguid`, `display` FROM `custom_item_enchant_visuals`");
+        QueryResult result = CharacterDatabase.PQuery("SELECT iguid, display FROM custom_item_enchant_visuals WHERE iguid IN(SELECT guid FROM item_instance WHERE owner_guid = %u)", player->GetGUIDLow());
 
         if (!result)
             return;
