@@ -13,7 +13,7 @@
 2. Re-run cmake and launch a clean build of AzerothCore
 3. Navigate in `modules` open folder SQL/Characters and import `custom_item_enchant_visuals.sql` in your base.
 4. Navigate in `modules` open folder SQL/World and import `Npc_VisualWeapon.sql` in your base.
-4. Log in game, spawn Npc ID 55003, Enjoy.
+5. Log in game, spawn Npc ID 55003, Enjoy.
 
 ### Usage
 - Enable this module and talk with the assigned creature :D
