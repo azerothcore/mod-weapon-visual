@@ -199,7 +199,11 @@ public:
 class player_visualweapon : public PlayerScript
 {
 public:
-    player_visualweapon() : PlayerScript("player_visualweapons") {}
+    player_visualweapon() : PlayerScript("player_visualweapons")
+    {
+        // Delete unused rows from DB table
+        CharacterDatabase.DirectExecute("DELETE FROM custom_item_enchant_visuals WHERE NOT EXISTS(SELECT 1 FROM item_instance WHERE custom_item_enchant_visuals.iguid = item_instance.guid)");
+    }
 
     void GetVisual(Player* player)
     {
