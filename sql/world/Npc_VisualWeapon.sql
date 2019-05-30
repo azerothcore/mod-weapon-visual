@@ -1,5 +1,5 @@
-Set @NpcName = "Visual Weapon NPC",
-    @NpcSubname = "AzerothCore",
+Set @NpcName = "Eron Glowpride",
+    @NpcSubname = "Weapon Glow Specialist",
     @NpcEntry = 55003,
     @NpcDisplayID = 31833,
     @NpcLevel = 80;
