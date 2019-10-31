@@ -4,42 +4,21 @@
 ** AzerothCore 2019 http://www.azerothcore.org/
 ** Cleaned and made into a module by Micrah https://github.com/milestorme/
 */
-
-/*
-    --Import this SQL first:
-    CREATE TABLE `custom_item_enchant_visuals` (
-        `iguid` INT(10) UNSIGNED NOT NULL COMMENT 'item DB guid',
-        `display` INT(10) UNSIGNED NOT NULL COMMENT 'enchantID',
-		`PlayerName` varchar(50) NOT NULL,
-        PRIMARY KEY(`iguid`)
-        )
-        COMMENT = 'stores the enchant IDs for the visuals'
-        COLLATE = 'latin1_swedish_ci'
-        ENGINE = InnoDB;
-*/
 #include "ScriptMgr.h"
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GameEventMgr.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "Unit.h"
-#include "GameObject.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "InstanceScript.h"
-#include "CombatAI.h"
-#include "PassiveAI.h"
+#include "Player.h"
 #include "Chat.h"
-#include "DBCStructure.h"
-#include "DBCStores.h"
-#include "ObjectMgr.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "ScriptedGossip.h"
 
 using namespace std;
 
-#define DEFAULT_MESSAGE 907
+enum VisualWeaponsGossip
+{
+    VIS_DEFAULT_MESSAGE         = 907,
+    VIS_GOSSIP_MAIN_MENU_ACTION = 100,
+    VIS_GOSSIP_MAIN_HAND_ACTION = 200,
+    VIS_GOSSIP_OFF_HAND_ACTION  = 300,
+    VIS_GOSSIP_CLOSE_ACTION     = 400
+};
 
 struct VisualData
 {
@@ -52,6 +31,8 @@ struct VisualData
 
 VisualData vData[] =
 {
+    { 1, VIS_GOSSIP_MAIN_MENU_ACTION, GOSSIP_ICON_TALK, 0, "Back.." },
+    { 1, 2, GOSSIP_ICON_INTERACT_1, 0, "Next.." },
     { 1, 0, GOSSIP_ICON_BATTLE, 3789, "Berserking" },
     { 1, 0, GOSSIP_ICON_BATTLE, 3854, "Spell Power" },
     { 1, 0, GOSSIP_ICON_BATTLE, 3273, "Deathfrost" },
@@ -65,8 +46,10 @@ VisualData vData[] =
     { 1, 0, GOSSIP_ICON_BATTLE, 3365, "Rune of Swordshattering" },
     { 1, 0, GOSSIP_ICON_BATTLE, 2673, "Mongoose" },
     { 1, 0, GOSSIP_ICON_BATTLE, 2343, "Spell Power" },
-    { 1, 2, GOSSIP_ICON_TALK, 0, "Next.." },
 
+    { 2, VIS_GOSSIP_MAIN_MENU_ACTION, GOSSIP_ICON_TALK, 0, "Back.." },
+    { 2, 3, GOSSIP_ICON_INTERACT_1, 0, "Next.." },
+    { 2, 1, GOSSIP_ICON_INTERACT_1, 0, "Previous.." },
     { 2, 0, GOSSIP_ICON_BATTLE, 425, "Black Temple Dummy" },
     { 2, 0, GOSSIP_ICON_BATTLE, 3855, "Spell Power III" },
     { 2, 0, GOSSIP_ICON_BATTLE, 1894, "Icy Weapon" },
@@ -80,9 +63,9 @@ VisualData vData[] =
     { 2, 0, GOSSIP_ICON_BATTLE, 1606, "Attack Power" },
     { 2, 0, GOSSIP_ICON_BATTLE, 283, "Windfury I" },
     { 2, 0, GOSSIP_ICON_BATTLE, 1, "Rockbiter III" },
-    { 2, 3, GOSSIP_ICON_TALK, 0, "Next.." },
-    { 2, 1, GOSSIP_ICON_TALK, 0, "..Back" },
 
+    { 3, VIS_GOSSIP_MAIN_MENU_ACTION, GOSSIP_ICON_TALK, 0, "Back.." },
+    { 3, 2, GOSSIP_ICON_INTERACT_1, 0, "Previous.." },
     { 3, 0, GOSSIP_ICON_BATTLE, 3265, "Blessed Weapon Coating" },
     { 3, 0, GOSSIP_ICON_BATTLE, 2, "Frostbrand I" },
     { 3, 0, GOSSIP_ICON_BATTLE, 3, "Flametongue III" },
@@ -95,7 +78,6 @@ VisualData vData[] =
     { 3, 0, GOSSIP_ICON_BATTLE, 1896, "Weapon Damage" },
     { 3, 0, GOSSIP_ICON_BATTLE, 2666, "Intellect" },
     { 3, 0, GOSSIP_ICON_BATTLE, 25, "Shadow Oil" },
-    { 3, 2, GOSSIP_ICON_TALK, 0, "..Back" },
 };
 
 
@@ -115,26 +97,22 @@ public:
 
         if (!item)
         {
-            ChatHandler(player->GetSession()).PSendSysMessage("No equipped item available to change the Visual.");
+            ChatHandler(player->GetSession()).PSendSysMessage("No equipped item available to change the visual effect.");
             return;
         }
 
         const ItemTemplate* itemTemplate = item->GetTemplate();
+        if (itemTemplate->Class != ITEM_CLASS_WEAPON)
+            return;
 
-        if (itemTemplate->SubClass == ITEM_SUBCLASS_ARMOR_SHIELD ||
-            itemTemplate->SubClass == ITEM_SUBCLASS_ARMOR_BUCKLER ||
-            itemTemplate->SubClass == ITEM_SUBCLASS_WEAPON_SPEAR ||
-            itemTemplate->SubClass == ITEM_SUBCLASS_WEAPON_BOW ||
+        if (itemTemplate->SubClass == ITEM_SUBCLASS_WEAPON_BOW ||
             itemTemplate->SubClass == ITEM_SUBCLASS_WEAPON_GUN ||
             itemTemplate->SubClass == ITEM_SUBCLASS_WEAPON_obsolete ||
-            itemTemplate->SubClass == ITEM_SUBCLASS_WEAPON_EXOTIC ||
-            itemTemplate->SubClass == ITEM_SUBCLASS_WEAPON_EXOTIC2 ||
-            itemTemplate->SubClass == ITEM_SUBCLASS_WEAPON_MISC ||
             itemTemplate->SubClass == ITEM_SUBCLASS_WEAPON_THROWN ||
+            itemTemplate->SubClass == ITEM_SUBCLASS_WEAPON_SPEAR ||
             itemTemplate->SubClass == ITEM_SUBCLASS_WEAPON_CROSSBOW ||
             itemTemplate->SubClass == ITEM_SUBCLASS_WEAPON_WAND ||
-            itemTemplate->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE ||
-            itemTemplate->SubClass == ITEM_SUBCLASS_WEAPON_obsolete)
+            itemTemplate->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
             return;
 
         player->SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (item->GetSlot() * 2), 0, visual);
@@ -146,46 +124,56 @@ public:
         for (uint8 i = 0; i < (sizeof(vData) / sizeof(*vData)); i++)
         {
             if (vData[i].Menu == menuId)
-                player->ADD_GOSSIP_ITEM(vData[i].Icon, vData[i].Name, GOSSIP_SENDER_MAIN, i);
+                AddGossipItemFor(player, vData[i].Icon, vData[i].Name, GOSSIP_SENDER_MAIN, i);
         }
 
-        player->SEND_GOSSIP_MENU(DEFAULT_MESSAGE, creature->GetGUID());
+        player->PlayerTalkClass->SendGossipMenu(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    void GetMainMenu(Player* player, Creature* creature)
     {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, "|TInterface/PaperDoll/UI-PaperDoll-Slot-MainHand:40:40:-18|tMain-Hand", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, "|TInterface/PaperDoll/UI-PaperDoll-Slot-SecondaryHand:40:40:-18|tOff-Hand", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_INTERACT_1, "|TInterface/PaperDollInfoFrame/UI-GearManager-Undo:40:40:-18|tNevermind", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+        AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, "|TInterface/PaperDoll/UI-PaperDoll-Slot-MainHand:40:40:-18|tMain-Hand", GOSSIP_SENDER_MAIN, VIS_GOSSIP_MAIN_HAND_ACTION);
+        AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, "|TInterface/PaperDoll/UI-PaperDoll-Slot-SecondaryHand:40:40:-18|tOff-Hand", GOSSIP_SENDER_MAIN, VIS_GOSSIP_OFF_HAND_ACTION);
+        AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, "|TInterface/PaperDollInfoFrame/UI-GearManager-Undo:40:40:-18|tNevermind", GOSSIP_SENDER_MAIN, VIS_GOSSIP_CLOSE_ACTION);
 
-        player->SEND_GOSSIP_MENU(DEFAULT_MESSAGE, creature->GetGUID());
+        player->PlayerTalkClass->SendGossipMenu(VIS_DEFAULT_MESSAGE, creature->GetGUID());
+    }
+
+    bool OnGossipHello(Player* player, Creature* creature) override
+    {
+        GetMainMenu(player, creature);
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
 
         switch (action)
         {
-        case GOSSIP_ACTION_INFO_DEF + 1:
-            MainHand = true;
-            GetMenu(player, creature, 1);
-            return false;
+            case VIS_GOSSIP_MAIN_HAND_ACTION:
+                MainHand = true;
+                GetMenu(player, creature, 1);
+                return true;
 
-        case GOSSIP_ACTION_INFO_DEF + 2:
-            MainHand = false;
-            GetMenu(player, creature, 1);
-            return false;
+            case VIS_GOSSIP_OFF_HAND_ACTION:
+                MainHand = false;
+                GetMenu(player, creature, 1);
+                return true;
 
-        case GOSSIP_ACTION_INFO_DEF + 3:
-            player->CLOSE_GOSSIP_MENU();
-            return false;
+            case VIS_GOSSIP_CLOSE_ACTION:
+                CloseGossipMenuFor(player);
+                return false;
         }
 
         uint32 menuData = vData[action].Submenu;
 
-        if (menuData == 0)
+        if (menuData == VIS_GOSSIP_MAIN_MENU_ACTION)
+        {
+            GetMainMenu(player, creature);
+            return true;
+        }
+        else if (menuData == 0)
         {
             SetVisual(player, vData[action].Id);
             menuData = vData[action].Menu;
