@@ -201,7 +201,7 @@ public:
         Item* pItem;
 
         // We need to query the DB to get item
-        QueryResult result = CharacterDatabase.PQuery("SELECT item_guid, display FROM `mod_weapon_visual_enchantments` WHERE item_guid IN(SELECT guid FROM item_instance WHERE owner_guid = %u)", player->GetGUIDLow());
+        QueryResult result = CharacterDatabase.PQuery("SELECT item_guid, enchant_id FROM `mod_weapon_visual_enchantments` WHERE item_guid IN(SELECT guid FROM item_instance WHERE owner_guid = %u)", player->GetGUIDLow());
 
         if (!result)
             return;
