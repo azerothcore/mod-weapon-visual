@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `mod_weapon_visual_enchantments` (
+CREATE TABLE IF NOT EXISTS `mod_weapon_visual_effect` (
     `item_guid` INT(10) UNSIGNED NOT NULL,
     `enchant_id` INT(10) UNSIGNED NOT NULL,
     PRIMARY KEY(`item_guid`))
