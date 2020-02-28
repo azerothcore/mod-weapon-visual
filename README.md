@@ -2,10 +2,22 @@
 # mod-weapon-visual
 ### This is a module for [AzerothCore](http://www.azerothcore.org)
 
-#### Features:
+## Important notes
+
+If you use an old version of this module please update the table structure using this SQL statement:
+```sql
+ALTER TABLE `custom_item_enchant_visuals`
+CHANGE `iguid` `item_guid` int(10) unsigned NOT NULL COMMENT 'item DB guid' FIRST,
+CHANGE `display` `enchant_visual_id` int(10) unsigned NOT NULL COMMENT 'enchantID' AFTER `item_guid`,
+DROP `PlayerName`,
+RENAME TO `mod_weapon_visual_effect`,
+COMMENT='Stores the enchant IDs for the visuals of mod-weapon-visual';
+```
+
+## Description
 - Character services: Adding Visual style for Weapons
 
-### This module currently requires:
+## This module currently requires:
 - AzerothCore v1.0.1+
 
 ### How to install

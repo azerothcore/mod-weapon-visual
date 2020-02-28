@@ -116,7 +116,7 @@ public:
             return;
 
         player->SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (item->GetSlot() * 2), 0, visual_id);
-        CharacterDatabase.PExecute("REPLACE into `mod_weapon_visual_effect` VALUES ('%u', '%u', '%s')", item->GetGUIDLow(), visual_id);
+        CharacterDatabase.PExecute("REPLACE into `mod_weapon_visual_effect` (`item_guid`, `enchant_visual_id`) VALUES ('%u', '%u')", item->GetGUIDLow(), visual_id);
     }
 
     void GetMenu(Player* player, Creature* creature, uint32 menuId)
@@ -201,7 +201,7 @@ public:
         Item* pItem;
 
         // We need to query the DB to get item
-        QueryResult result = CharacterDatabase.PQuery("SELECT item_guid, enchant_id FROM `mod_weapon_visual_effect` WHERE item_guid IN(SELECT guid FROM item_instance WHERE owner_guid = %u)", player->GetGUIDLow());
+        QueryResult result = CharacterDatabase.PQuery("SELECT item_guid, enchant_visual_id FROM `mod_weapon_visual_effect` WHERE item_guid IN(SELECT guid FROM item_instance WHERE owner_guid = %u)", player->GetGUIDLow());
 
         if (!result)
             return;
