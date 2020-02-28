@@ -20,8 +20,8 @@ COMMENT='Stores the enchant IDs for the visuals of mod-weapon-visual';
 ### How to install
 1. Simply place the module under the `modules` folder of your AzerothCore source folder.
 2. Re-run cmake and launch a clean build of AzerothCore
-3. Navigate in `modules` open folder SQL/Characters and import `custom_item_enchant_visuals.sql` in your base.
-4. Navigate in `modules` open folder SQL/World and import `Npc_VisualWeapon.sql` in your base.
+3. Import `sql/world/base/creature_template.sql` into your world DB.
+4. Import `sql/characters/base/mod_weapon_visual_effect.sql` into your characters DB.
 5. Log in game, spawn Npc ID 55003, Enjoy.
 
 ### Usage
