@@ -89,7 +89,7 @@ public:
 
     bool MainHand;
 
-    void SetVisual(Player* player, uint32 visual)
+    void SetVisual(Player* player, uint32 visual_id)
     {
         uint8 slot = MainHand ? EQUIPMENT_SLOT_MAINHAND : EQUIPMENT_SLOT_OFFHAND;
 
@@ -115,8 +115,8 @@ public:
             itemTemplate->SubClass == ITEM_SUBCLASS_WEAPON_FISHING_POLE)
             return;
 
-        player->SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (item->GetSlot() * 2), 0, visual);
-        CharacterDatabase.PExecute("REPLACE into custom_item_enchant_visuals VALUES ('%u', '%u', '%s')", item->GetGUIDLow(), visual, player->GetName().c_str());
+        player->SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (item->GetSlot() * 2), 0, visual_id);
+        CharacterDatabase.PExecute("REPLACE into `mod_weapon_visual_effect` (`item_guid`, `enchant_visual_id`) VALUES ('%u', '%u')", item->GetGUIDLow(), visual_id);
     }
 
     void GetMenu(Player* player, Creature* creature, uint32 menuId)
@@ -190,7 +190,7 @@ public:
     player_visualweapon() : PlayerScript("player_visualweapons")
     {
         // Delete unused rows from DB table
-        CharacterDatabase.DirectExecute("DELETE FROM custom_item_enchant_visuals WHERE NOT EXISTS(SELECT 1 FROM item_instance WHERE custom_item_enchant_visuals.iguid = item_instance.guid)");
+        CharacterDatabase.DirectExecute("DELETE FROM `mod_weapon_visual_effect` WHERE NOT EXISTS(SELECT 1 FROM item_instance WHERE `mod_weapon_visual_effect`.item_guid = item_instance.guid)");
     }
 
     void GetVisual(Player* player)
@@ -201,7 +201,7 @@ public:
         Item* pItem;
 
         // We need to query the DB to get item
-        QueryResult result = CharacterDatabase.PQuery("SELECT iguid, display FROM custom_item_enchant_visuals WHERE iguid IN(SELECT guid FROM item_instance WHERE owner_guid = %u)", player->GetGUIDLow());
+        QueryResult result = CharacterDatabase.PQuery("SELECT item_guid, enchant_visual_id FROM `mod_weapon_visual_effect` WHERE item_guid IN(SELECT guid FROM item_instance WHERE owner_guid = %u)", player->GetGUIDLow());
 
         if (!result)
             return;
@@ -210,7 +210,7 @@ public:
         do
         {
             Field* fields = result->Fetch();
-            uint32 iguid = fields[0].GetUInt32();
+            uint32 item_guid = fields[0].GetUInt32();
             uint32 visual = fields[1].GetUInt32();
 
             // Lets loop to check item by pos
@@ -218,7 +218,7 @@ public:
             {
                 pItem = player->GetItemByPos(255, i);
 
-                if (pItem && pItem->GetGUIDLow() == iguid)
+                if (pItem && pItem->GetGUIDLow() == item_guid)
                 {
                     player->SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (pItem->GetSlot() * 2), 0, visual);
                 }

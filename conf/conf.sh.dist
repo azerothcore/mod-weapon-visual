@@ -5,9 +5,9 @@
 #
 
 DB_CHARACTERS_CUSTOM_PATHS+=(
-	$MOD_WEAPON_VISUAL_ROOT"/sql/characters/"
+	$MOD_WEAPON_VISUAL_ROOT"/sql/characters/base"
 )
 
 DB_WORLD_CUSTOM_PATHS+=(
-	$MOD_WEAPON_VISUAL_ROOT"/sql/world/"
+	$MOD_WEAPON_VISUAL_ROOT"/sql/world/base"
 )
