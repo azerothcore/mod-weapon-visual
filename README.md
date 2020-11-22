@@ -1,6 +1,7 @@
 # ![logo](https://raw.githubusercontent.com/azerothcore/azerothcore.github.io/master/images/logo-github.png) AzerothCore
-# mod-weapon-visual
+## mod-weapon-visual
 ### This is a module for [AzerothCore](http://www.azerothcore.org)
+- Latest build status with azerothcore: [![Build Status](https://github.com/azerothcore/mod-weapon-visual/workflows/core-build/badge.svg?branch=master&event=push)](https://github.com/azerothcore/mod-weapon-visual)
 
 ## Important notes
 
@@ -37,4 +38,3 @@ COMMENT='Stores the enchant IDs for the visuals of mod-weapon-visual';
 * [Micrah/Milestorme](https://github.com/milestorme): (Thanks for the help with the Module creation & General support): 
 
 AzerothCore: [repository](https://github.com/azerothcore) - [website](http://azerothcore.org/) - [discord chat community](https://discord.gg/PaqQRkd)
-- Latest build status with azerothcore: [![Build Status](https://travis-ci.org/azerothcore/mod-weapon-visual.svg?branch=master)](https://travis-ci.org/azerothcore/mod-weapon-visual)
