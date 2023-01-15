@@ -116,7 +116,7 @@ public:
             return;
 
         player->SetUInt16Value(PLAYER_VISIBLE_ITEM_1_ENCHANTMENT + (item->GetSlot() * 2), 0, visual_id);
-        CharacterDatabase.Execute("REPLACE into `mod_weapon_visual_effect` (`item_guid`, `enchant_visual_id`) VALUES ('%u', '%u')", item->GetGUID().GetCounter(), visual_id);
+        CharacterDatabase.Execute("REPLACE into `mod_weapon_visual_effect` (`item_guid`, `enchant_visual_id`) VALUES ('{}', '{}')", item->GetGUID().GetCounter(), visual_id);
     }
 
     void GetMenu(Player* player, Creature* creature, uint32 menuId)
