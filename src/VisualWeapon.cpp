@@ -8,6 +8,8 @@
 #include "Player.h"
 #include "Chat.h"
 #include "ScriptedGossip.h"
+#include "Config.h"
+#include "Chat.h"
 
 using namespace std;
 
@@ -82,10 +84,10 @@ VisualData vData[] =
 
 
 
-class npc_visualweapon : public CreatureScript
+class VisualWeaponNPC : public CreatureScript
 {
 public:
-    npc_visualweapon() : CreatureScript("npc_visualweapon") { }
+    VisualWeaponNPC() : CreatureScript("VisualWeaponNPC") { }
 
     bool MainHand;
 
@@ -184,7 +186,7 @@ public:
     }
 };
 
-class player_visualweapon : public PlayerScript
+class VisualWeaponPlayer : public PlayerScript
 {
 public:
     player_visualweapon() : PlayerScript("player_visualweapons")
@@ -232,14 +234,30 @@ public:
         GetVisual(player);
     }
 
-    void OnLogin(Player* p) override
+    void OnLogin(Player* player) override
     {
-        GetVisual(p);
+        GetVisual(player);
+
+        if(sConfigMgr->GetOption<bool>("VisualWeapon.AnnounceEnable", true))
+            ChatHandler(player->GetSession()).SendSysMessage("This server is running the |cff4CFF00VisualWeapon|r module.");
     }
 };
 
-void AddSC_Npc_VisualWeaponScripts()
+class VisualWeaponWorld : public WorldScript
 {
-    new npc_visualweapon;
-    new player_visualweapon;
+public:
+    VisualWeaponWorld() : WorldScript("VisualWeaponWorld") {}
+
+    void OnStartup() override {
+        // Delete unused rows from DB table
+        CharacterDatabase.DirectExecute("DELETE FROM `mod_weapon_visual_effect` WHERE NOT EXISTS(SELECT 1 FROM item_instance WHERE `mod_weapon_visual_effect`.item_guid = item_instance.guid)");
+    }
+
+};
+
+void AddVisualWeaponScripts()
+{
+    new VisualWeaponPlayer();
+    new VisualWeaponWorld();
+    new VisualWeaponNPC();
 }
