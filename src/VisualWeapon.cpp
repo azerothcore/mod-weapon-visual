@@ -189,7 +189,7 @@ public:
 class VisualWeaponPlayer : public PlayerScript
 {
 public:
-    player_visualweapon() : PlayerScript("player_visualweapons")
+    VisualWeaponPlayer() : PlayerScript("VisualWeaponPlayer")
     {
         // Delete unused rows from DB table
         CharacterDatabase.Execute("DELETE FROM `mod_weapon_visual_effect` WHERE NOT EXISTS(SELECT 1 FROM item_instance WHERE `mod_weapon_visual_effect`.item_guid = item_instance.guid)");
