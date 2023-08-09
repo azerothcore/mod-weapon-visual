@@ -4,6 +4,7 @@
 ** AzerothCore 2019 http://www.azerothcore.org/
 ** Cleaned and made into a module by Micrah https://github.com/milestorme/
 */
+
 #include "ScriptMgr.h"
 #include "Player.h"
 #include "Chat.h"
@@ -82,12 +83,10 @@ VisualData vData[] =
     { 3, 0, GOSSIP_ICON_BATTLE, 25, "Shadow Oil" },
 };
 
-
-
 class VisualWeaponNPC : public CreatureScript
 {
 public:
-    VisualWeaponNPC() : CreatureScript("VisualWeaponNPC") { }
+    VisualWeaponNPC() : CreatureScript("npc_visualweapon") { }
 
     bool MainHand;
 
@@ -248,7 +247,8 @@ class VisualWeaponWorld : public WorldScript
 public:
     VisualWeaponWorld() : WorldScript("VisualWeaponWorld") {}
 
-    void OnStartup() override {
+    void OnStartup() override
+    {
         // Delete unused rows from DB table
         CharacterDatabase.DirectExecute("DELETE FROM `mod_weapon_visual_effect` WHERE NOT EXISTS(SELECT 1 FROM item_instance WHERE `mod_weapon_visual_effect`.item_guid = item_instance.guid)");
     }
