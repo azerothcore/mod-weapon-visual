@@ -1,0 +1,12 @@
+########################################
+# VISUAL WEAPON CONFIGURATION
+########################################
+#
+#    VisualWeapon.Announce
+#        Description: Announce module is active when players log in.
+#        Default:     1 - Enabled
+#                     0 - Disabled
+#
+
+VisualWeapon.AnnounceEnable = 1
+
